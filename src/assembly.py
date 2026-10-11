@@ -22,11 +22,13 @@ Full cabinet assembly coordinating all structural, mechanical, and equipment ele
 from typing import List, Tuple, Dict
 import cadquery as cq
 
-from carcass import make_side_panel, make_plinth_assembly, make_back_panel
+from carcass import make_side_panel, make_plinth_assembly, make_back_panel, make_isolation_feet
 from shelves import (
     make_bottom_panel,
     make_lower_divider,
     make_printer_shelf,
+    make_isolation_pad,
+    make_paver_slab,
     make_dry_shelf,
     make_top_panel,
 )
@@ -58,15 +60,18 @@ def get_cabinet_components(
     components = {}
 
     # Carcass and Structural Joinery
+    components["isolation_feet"] = make_isolation_feet()
     components["side_left"] = make_side_panel("left")
     components["side_right"] = make_side_panel("right")
     components["plinth"] = make_plinth_assembly()
     components["back_panel"] = make_back_panel()
 
-    # Shelves
+    # Shelves & Vibration Decoupling Platform
     components["bottom_panel"] = make_bottom_panel()
     components["lower_divider"] = make_lower_divider()
     components["printer_shelf"] = make_printer_shelf()
+    components["isolation_pad"] = make_isolation_pad()
+    components["paver_slab"] = make_paver_slab()
     components["dry_shelf"] = make_dry_shelf()
     components["top_panel"] = make_top_panel()
 

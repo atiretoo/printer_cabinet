@@ -47,8 +47,11 @@ REAR_FACE_Y = CABINET_DEPTH / 2.0                  # +304.80 mm
 INSIDE_FRONT_Y = FRONT_FACE_Y                      # -304.80 mm
 INSIDE_REAR_Y = REAR_FACE_Y - BACK_THICKNESS       # +292.10 mm
 
-# Base / Plinth (Toe-kick)
-PLINTH_HEIGHT = 2.5 * INCH_TO_MM                   # 63.50 mm
+# Base / Plinth (Toe-kick) and Vibration Isolation Feet
+VIBRATION_FEET_HEIGHT = 20.0                       # 20.00 mm heavy-duty rubber leveling feet
+VIBRATION_FEET_DIAMETER = 60.0                     # 60.00 mm diameter elastomer base
+PLINTH_WOOD_HEIGHT = 50.0                          # 50.00 mm wood plinth frame
+PLINTH_TOTAL_HEIGHT = VIBRATION_FEET_HEIGHT + PLINTH_WOOD_HEIGHT # 70.00 mm total base height
 PLINTH_SETBACK_FRONT = 1.5 * INCH_TO_MM            # 38.10 mm
 PLINTH_SETBACK_SIDES = 0.75 * INCH_TO_MM           # 19.05 mm
 
@@ -56,40 +59,55 @@ PLINTH_SETBACK_SIDES = 0.75 * INCH_TO_MM           # 19.05 mm
 # 2. VERTICAL ELEVATIONS AND COMPARTMENT HEIGHTS (BOTTOM UP)
 # ==============================================================================
 # Floor: Z = 0
-Z_PLINTH_BOTTOM = 0.0
-Z_PLINTH_TOP = PLINTH_HEIGHT                       # 63.50 mm
+Z_FEET_BOTTOM = 0.0
+Z_PLINTH_BOTTOM = VIBRATION_FEET_HEIGHT            # 20.00 mm
+Z_PLINTH_TOP = PLINTH_TOTAL_HEIGHT                 # 70.00 mm
 
 # Bottom Panel
-Z_BOTTOM_PANEL_BOTTOM = Z_PLINTH_TOP               # 63.50 mm
-Z_BOTTOM_PANEL_TOP = Z_BOTTOM_PANEL_BOTTOM + PLY_THICKNESS  # 82.55 mm
+Z_BOTTOM_PANEL_BOTTOM = Z_PLINTH_TOP               # 70.00 mm
+Z_BOTTOM_PANEL_TOP = Z_BOTTOM_PANEL_BOTTOM + PLY_THICKNESS  # 89.05 mm
 
-# Zone 4: Paper Storage Bay (Lowest)
-PAPER_BAY_HEIGHT = 350.0                           # 350.00 mm (~13.78")
+# Zone 4: Paper Storage Bay (Lowest - serves as 30+ kg low-CG acoustic ballast)
+PAPER_BAY_HEIGHT = 330.0                           # 330.00 mm (~13.00")
 
 # Divider Shelf (above paper storage / below scanner)
-Z_LOWER_DIVIDER_BOTTOM = Z_BOTTOM_PANEL_TOP + PAPER_BAY_HEIGHT  # 432.55 mm
-Z_LOWER_DIVIDER_TOP = Z_LOWER_DIVIDER_BOTTOM + PLY_THICKNESS    # 451.60 mm
+Z_LOWER_DIVIDER_BOTTOM = Z_BOTTOM_PANEL_TOP + PAPER_BAY_HEIGHT  # 419.05 mm
+Z_LOWER_DIVIDER_TOP = Z_LOWER_DIVIDER_BOTTOM + PLY_THICKNESS    # 438.10 mm
 
 # Zone 3: Inkjet / Scanner Pull-Out Bay
-SCANNER_BAY_HEIGHT = 280.0                         # 280.00 mm (~11.02")
+SCANNER_BAY_HEIGHT = 270.0                         # 270.00 mm (~10.63")
 
-# 3D Printer Solid Shelf (Heavy duty, middle shelf)
-Z_PRINTER_SHELF_BOTTOM = Z_LOWER_DIVIDER_TOP + SCANNER_BAY_HEIGHT # 731.60 mm (~28.8")
-Z_PRINTER_SHELF_TOP = Z_PRINTER_SHELF_BOTTOM + PLY_THICKNESS      # 750.65 mm (~29.55")
+# 3D Printer Solid Shelf (Double-Laminated 1.5" Baltic Birch for mass & stiffness)
+PRINTER_SHELF_THICKNESS = 2 * PLY_THICKNESS        # 38.10 mm (1.5" laminated shelf)
+Z_PRINTER_SHELF_BOTTOM = Z_LOWER_DIVIDER_TOP + SCANNER_BAY_HEIGHT # 708.10 mm
+Z_PRINTER_SHELF_TOP = Z_PRINTER_SHELF_BOTTOM + PRINTER_SHELF_THICKNESS # 746.20 mm
+
+# Vibration Decoupling Platform (Under 3D Printer)
+ISOLATION_PAD_THICKNESS = 12.0                     # 12.00 mm high-density closed-cell EVA / Sorbothane
+PAVER_WIDTH = 450.0                                # 450.00 mm (~17.7" concrete / granite paver)
+PAVER_DEPTH = 450.0                                # 450.00 mm
+PAVER_THICKNESS = 45.0                             # 45.00 mm (~1.77" thickness, ~22 kg inertia ballast)
+
+Z_PAD_BOTTOM = Z_PRINTER_SHELF_TOP                 # 746.20 mm
+Z_PAD_TOP = Z_PAD_BOTTOM + ISOLATION_PAD_THICKNESS # 758.20 mm
+Z_PAVER_BOTTOM = Z_PAD_TOP                         # 758.20 mm
+Z_PAVER_TOP = Z_PAVER_BOTTOM + PAVER_THICKNESS     # 803.20 mm
 
 # Zone 2: 3D Printer Chamber (Prusa Core One+)
-PRINTER_BAY_HEIGHT = 670.0                         # 670.00 mm (~26.38")
+# Clearance above printer shelf to underside of dry shelf
+PRINTER_BAY_HEIGHT = 693.80                        # 693.80 mm (~27.31")
+# Clearance above printer top (Z_PAVER_TOP + 555mm = 1358.2mm) to dry shelf (1440mm) = ~82mm
 
 # Zone 1 Floor: Filament Dry Chamber Shelf (with PTFE pass-through)
-Z_DRY_SHELF_BOTTOM = Z_PRINTER_SHELF_TOP + PRINTER_BAY_HEIGHT     # 1420.65 mm (~55.93")
-Z_DRY_SHELF_TOP = Z_DRY_SHELF_BOTTOM + PLY_THICKNESS             # 1439.70 mm (~56.68")
+Z_DRY_SHELF_BOTTOM = Z_PRINTER_SHELF_TOP + PRINTER_BAY_HEIGHT     # 1440.00 mm
+Z_DRY_SHELF_TOP = Z_DRY_SHELF_BOTTOM + PLY_THICKNESS             # 1459.05 mm
 
 # Top Panel
 Z_TOP_PANEL_TOP = CABINET_HEIGHT                   # 1828.80 mm (72.0")
 Z_TOP_PANEL_BOTTOM = Z_TOP_PANEL_TOP - PLY_THICKNESS # 1809.75 mm
 
-# Zone 1: Filament Dry Chamber Height
-DRY_BAY_HEIGHT = Z_TOP_PANEL_BOTTOM - Z_DRY_SHELF_TOP # 370.05 mm (~14.57")
+# Zone 1: Filament Dry Chamber Clear Height
+DRY_BAY_HEIGHT = Z_TOP_PANEL_BOTTOM - Z_DRY_SHELF_TOP # 350.70 mm (~13.81")
 
 # ==============================================================================
 # 3. PULL-OUT SCANNER TRAY & HARDWARE

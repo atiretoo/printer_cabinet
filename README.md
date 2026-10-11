@@ -8,6 +8,11 @@ This repository contains the CAD design for a dedicated, multi-tier workshop pri
 
 - **Dimensions**: Approximately 6' high (72" / 1828.8 mm), 2' wide (24" / 609.6 mm), and 2' deep (24" / 609.6 mm).
 - **Primary Material**: 3/4" (19.05 mm) Baltic birch plywood for the carcass and structural shelves.
+- **Multi-Stage Vibration Isolation**:
+  - *Stage 1 (Primary Decoupling Base)*: A dense 18" x 18" concrete or granite inertia paver slab (~22 kg) rests on a 1/2" (12 mm) high-density closed-cell EVA / Sorbothane damping pad directly beneath the printer, halving motion amplitude and filtering out high-acceleration CoreXY motor jerk.
+  - *Stage 2 (Shelf Structural Rigidity)*: A double-laminated 1.5" (38.1 mm) Baltic birch printer shelf reinforced with a 1.5" front stiffening apron rib eliminates drum-head flexing and acoustic resonance.
+  - *Stage 3 (Low-CG Acoustic Ballast)*: The bottom paper storage compartment houses 30+ kg of paper reams, dramatically anchoring the cabinet's center of gravity and suppressing sway.
+  - *Stage 4 (Floor Decoupling)*: Heavy-duty elastomeric machine leveling feet isolate the cabinet plinth from the floor joists.
 - **Top Dry Chamber**: An upper storage compartment with a sealed door, desiccant trays, and dedicated pass-through openings with PTFE tubing to feed filament reels directly into the 3D printer enclosure below.
 - **Middle 3D Printer Chamber**: Solid, reinforced permanent shelf positioned at ergonomic working height to house a **Prusa Core One / Core One+**.
 - **Pull-Out Inkjet/Scanner Shelf**: Located directly below the 3D printer on heavy-duty full-extension slides, sized for an Epson all-in-one inkjet scanner so the flatbed lid can be fully opened when pulled forward.

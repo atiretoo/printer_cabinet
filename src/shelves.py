@@ -16,14 +16,11 @@
 # along with printer_cabinet.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Horizontal structural shelves and dividers for the printer cabinet.
-
-Generates the bottom panel, lower divider shelf (above paper storage),
-reinforced solid 3D printer shelf, filament dry chamber shelf with
-PTFE feed pass-through holes, and top ceiling panel.
+Horizontal structural shelves, reinforced 3D printer shelf, and vibration
+decoupling platform (elastomer damping mat + concrete/granite inertia paver).
 """
 
-from typing import List
+from typing import List, Tuple
 import cadquery as cq
 
 from params import (
@@ -32,6 +29,7 @@ from params import (
     FRONT_FACE_Y,
     INSIDE_REAR_Y,
     PLY_THICKNESS,
+    PRINTER_SHELF_THICKNESS,
     Z_BOTTOM_PANEL_BOTTOM,
     Z_LOWER_DIVIDER_BOTTOM,
     Z_PRINTER_SHELF_BOTTOM,
@@ -40,20 +38,25 @@ from params import (
     PTFE_FITTING_HOLE_DIA,
     PTFE_PORT_OFFSETS_X,
     PTFE_PORT_OFFSET_Y,
+    PAVER_WIDTH,
+    PAVER_DEPTH,
+    PAVER_THICKNESS,
+    ISOLATION_PAD_THICKNESS,
+    Z_PAD_BOTTOM,
+    Z_PAVER_BOTTOM,
 )
 
-# Standard shelf center along Y (flush with front, abuts rear back panel)
 SHELF_MID_Y = (FRONT_FACE_Y + INSIDE_REAR_Y) / 2.0
 
 
-def make_standard_shelf(z_bottom: float) -> cq.Workplane:
+def make_standard_shelf(z_bottom: float, thickness: float = PLY_THICKNESS) -> cq.Workplane:
     """
-    Creates a standard horizontal 3/4" Baltic birch shelf at elevation z_bottom.
+    Creates a standard horizontal Baltic birch shelf at elevation z_bottom.
     """
     shelf = (
         cq.Workplane("XY")
-        .box(INSIDE_WIDTH, INSIDE_DEPTH, PLY_THICKNESS)
-        .translate((0, SHELF_MID_Y, z_bottom + PLY_THICKNESS / 2.0))
+        .box(INSIDE_WIDTH, INSIDE_DEPTH, thickness)
+        .translate((0, SHELF_MID_Y, z_bottom + thickness / 2.0))
     )
     return shelf
 
@@ -70,15 +73,15 @@ def make_lower_divider() -> cq.Workplane:
 
 def make_printer_shelf() -> cq.Workplane:
     """
-    Creates the solid, reinforced permanent shelf for the 3D printer.
+    Creates the reinforced permanent shelf for the 3D printer.
 
-    Includes a 1.5" (38.1 mm) under-shelf hardwood/birch stiffening apron
-    along the front edge to eliminate deflection under the 22.5 kg printer
-    and dynamic acceleration vibrations.
+    Constructed from double-laminated 1.5" (38.1 mm) Baltic birch plywood,
+    augmented by a front stiffening apron rib. This mass and section modulus
+    drastically reduces deflection and drum-skin resonance under the moving printer.
     """
-    base_shelf = make_standard_shelf(Z_PRINTER_SHELF_BOTTOM)
+    base_shelf = make_standard_shelf(Z_PRINTER_SHELF_BOTTOM, thickness=PRINTER_SHELF_THICKNESS)
 
-    # Front stiffener apron
+    # Front stiffener apron rib under the shelf
     stiffener_h = 38.1  # 1.5"
     stiffener_y = FRONT_FACE_Y + PLY_THICKNESS / 2.0
     stiffener_z = Z_PRINTER_SHELF_BOTTOM - stiffener_h / 2.0
@@ -93,17 +96,42 @@ def make_printer_shelf() -> cq.Workplane:
     return cq.Workplane(comp)
 
 
+def make_isolation_pad() -> cq.Workplane:
+    """
+    Creates the high-density closed-cell EVA foam / Sorbothane decoupling mat
+    resting directly on top of the printer shelf.
+    """
+    pad_z = Z_PAD_BOTTOM + ISOLATION_PAD_THICKNESS / 2.0
+    pad = (
+        cq.Workplane("XY")
+        .box(PAVER_WIDTH, PAVER_DEPTH, ISOLATION_PAD_THICKNESS)
+        .translate((0, 0, pad_z))
+    )
+    return pad
+
+
+def make_paver_slab() -> cq.Workplane:
+    """
+    Creates the dense concrete or granite inertia ballast paver (~22 kg).
+    Sits on top of the isolation mat and acts as the immediate platform for the printer.
+    """
+    paver_z = Z_PAVER_BOTTOM + PAVER_THICKNESS / 2.0
+    paver = (
+        cq.Workplane("XY")
+        .box(PAVER_WIDTH, PAVER_DEPTH, PAVER_THICKNESS)
+        .translate((0, 0, paver_z))
+    )
+    paver = paver.edges().chamfer(3.0)
+    return paver
+
+
 def make_dry_shelf() -> cq.Workplane:
     """
     Creates the permanent shelf separating the 3D printer bay from the dry chamber.
-
-    Features two counterbored pass-through openings for PC4-M10 pneumatic fittings,
-    allowing PTFE reverse Bowden tubes to feed filament directly into the printer.
+    Includes pass-through holes for PTFE bulkhead fittings.
     """
     shelf = make_standard_shelf(Z_DRY_SHELF_BOTTOM)
 
-    # Cut pass-through holes for PTFE fittings
-    cutters = []
     for x_offset in PTFE_PORT_OFFSETS_X:
         cutter = (
             cq.Workplane("XY")

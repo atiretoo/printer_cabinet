@@ -58,6 +58,11 @@ COLOR_PTFE         = (0.95, 0.95, 0.98)     # Translucent PTFE tubing
 COLOR_DESICCANT    = (0.40, 0.60, 0.80)     # Silica gel indicator tray
 COLOR_EDGE_LINE    = (0.12, 0.10, 0.08)     # Crisp dark seam outline
 
+# Vibration Damping Palette
+COLOR_PAVER        = (0.74, 0.73, 0.71)     # Dense concrete / granite inertia paver
+COLOR_FOAM         = (0.28, 0.38, 0.48)     # High-density closed-cell damping pad
+COLOR_FEET         = (0.18, 0.18, 0.20)     # Heavy-duty elastomeric machine feet
+
 SPOOL_COLORS = [
     (0.95, 0.45, 0.10),  # Prusa Orange
     (0.15, 0.55, 0.85),  # Galaxy Blue
@@ -78,6 +83,12 @@ def assign_component_colors(comp_dict: Dict[str, cq.Workplane]) -> List[Tuple[cq
             col = COLOR_BALTIC_BIRCH
         elif name == "plinth":
             col = COLOR_PLINTH
+        elif name == "isolation_feet":
+            col = COLOR_FEET
+        elif name == "isolation_pad":
+            col = COLOR_FOAM
+        elif name == "paver_slab":
+            col = COLOR_PAVER
         elif name == "slides":
             col = COLOR_SLIDES
         elif name == "door_acrylic":

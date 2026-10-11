@@ -34,7 +34,7 @@ from params import (
     EPSON_SCANNER_WIDTH,
     EPSON_SCANNER_DEPTH,
     EPSON_SCANNER_HEIGHT_CLOSED,
-    Z_PRINTER_SHELF_TOP,
+    Z_PAVER_TOP,
     Z_LOWER_DIVIDER_TOP,
     TRAY_ELEVATION_ABOVE_DIVIDER,
     TRAY_THICKNESS,
@@ -46,11 +46,11 @@ from params import (
 def make_prusa_core_one() -> cq.Workplane:
     """
     Creates a detailed dimensional mockup of the Prusa Core One+ 3D printer.
+    Mounted on top of the vibration-damping paver platform.
     """
     parts = []
 
-    printer_z = Z_PRINTER_SHELF_TOP + PRUSA_CORE_ONE_HEIGHT / 2.0
-    # Center along Y with equal front/rear margins
+    printer_z = Z_PAVER_TOP + PRUSA_CORE_ONE_HEIGHT / 2.0
     printer_y = 0.0
 
     # Main chassis box
@@ -75,7 +75,7 @@ def make_prusa_core_one() -> cq.Workplane:
     parts.append(front_door.val())
 
     # Top reverse Bowden guide fitting
-    top_fitting_z = Z_PRINTER_SHELF_TOP + PRUSA_CORE_ONE_HEIGHT + 15.0
+    top_fitting_z = Z_PAVER_TOP + PRUSA_CORE_ONE_HEIGHT + 15.0
     top_fitting = (
         cq.Workplane("XY")
         .cylinder(30.0, 8.0)
