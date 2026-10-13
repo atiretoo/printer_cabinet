@@ -18,9 +18,9 @@
 """
 High-resolution off-screen technical rendering for the printer cabinet.
 
-Uses CadQuery VTK polydata generation and vtkFeatureEdges to produce
-clean architectural illustrations with distinct material palettes,
-wood tones, transparent acrylic, and feature seam outlines.
+Uses OpenCASCADE native tessellation and VTK with feature edge extraction
+to produce architectural illustrations with distinct wood, stone, acrylic,
+and hardware finishes.
 """
 
 import os
@@ -29,7 +29,6 @@ from typing import List, Tuple, Dict, Optional
 import cadquery as cq
 import vtk
 
-# Add src to path if executed standalone
 sys.path.insert(0, os.path.dirname(__file__))
 
 from assembly import get_cabinet_components
@@ -40,7 +39,7 @@ from params import (
 )
 
 # ==============================================================================
-# Color Palette (Woodworking & Hardware Technical CAD)
+# Color Palette (Woodworking, Stone Ballast & Hardware Technical CAD)
 # ==============================================================================
 COLOR_BALTIC_BIRCH = (0.88, 0.80, 0.65)     # Warm Baltic birch plywood face
 COLOR_PLY_EDGES    = (0.75, 0.63, 0.48)     # Slightly darker ply edge tone
@@ -58,10 +57,12 @@ COLOR_PTFE         = (0.95, 0.95, 0.98)     # Translucent PTFE tubing
 COLOR_DESICCANT    = (0.40, 0.60, 0.80)     # Silica gel indicator tray
 COLOR_EDGE_LINE    = (0.12, 0.10, 0.08)     # Crisp dark seam outline
 
-# Vibration Damping Palette
+# Vibration Damping & Enclosure Hardware
 COLOR_PAVER        = (0.74, 0.73, 0.71)     # Dense concrete / granite inertia paver
 COLOR_FOAM         = (0.28, 0.38, 0.48)     # High-density closed-cell damping pad
 COLOR_FEET         = (0.18, 0.18, 0.20)     # Heavy-duty elastomeric machine feet
+COLOR_STEEL        = (0.45, 0.48, 0.52)     # Steel bracket
+COLOR_HARDWARE     = (0.15, 0.15, 0.18)     # Matte black handle / fan body
 
 SPOOL_COLORS = [
     (0.95, 0.45, 0.10),  # Prusa Orange
@@ -79,23 +80,28 @@ def assign_component_colors(comp_dict: Dict[str, cq.Workplane]) -> List[Tuple[cq
     items = []
     for name, wp in comp_dict.items():
         opacity = 1.0
-        if "side_" in name or "panel" in name or "divider" in name or "shelf" in name or "door_frame" in name or "tray" in name:
-            col = COLOR_BALTIC_BIRCH
+        if "side_" in name or "panel" in name or "divider" in name or "shelf" in name or "door_frame" in name or "tray" in name or "drawer" in name:
+            if "slides" in name:
+                col = COLOR_SLIDES
+            else:
+                col = COLOR_BALTIC_BIRCH
         elif name == "plinth":
             col = COLOR_PLINTH
-        elif name == "isolation_feet":
+        elif name in ("isolation_feet", "door_gasket"):
             col = COLOR_FEET
         elif name == "isolation_pad":
             col = COLOR_FOAM
-        elif name == "paver_slab":
+        elif "paver" in name:
             col = COLOR_PAVER
-        elif name == "slides":
+        elif "slides" in name:
             col = COLOR_SLIDES
-        elif name == "door_acrylic":
+        elif "acrylic" in name:
             col = COLOR_ACRYLIC
-            opacity = 0.55
-        elif name == "door_gasket":
-            col = COLOR_GASKET
+            opacity = 0.50
+        elif name in ("printer_door_handle", "exhaust_fan"):
+            col = COLOR_HARDWARE
+        elif name == "wall_tether":
+            col = COLOR_STEEL
         elif name == "spool_rack":
             col = COLOR_BALTIC_BIRCH
         elif name == "filament_spools":
@@ -120,7 +126,6 @@ def assign_component_colors(comp_dict: Dict[str, cq.Workplane]) -> List[Tuple[cq
 def shape_to_polydata(shape: cq.Shape, tolerance: float = 0.5) -> vtk.vtkPolyData:
     """
     Converts a CadQuery Shape or Compound to vtkPolyData using native OpenCASCADE tessellation.
-    Avoids VTK 9.5+ pipeline connection regressions in CadQuery's toVtkPolyData().
     """
     pts, triangles = shape.tessellate(tolerance)
     poly = vtk.vtkPolyData()
@@ -140,7 +145,6 @@ def shape_to_polydata(shape: cq.Shape, tolerance: float = 0.5) -> vtk.vtkPolyDat
         cells.InsertNextCell(tri)
     poly.SetPolys(cells)
 
-    # Compute smooth normals
     normals = vtk.vtkPolyDataNormals()
     normals.SetInputData(poly)
     normals.SetComputePointNormals(True)
@@ -184,7 +188,7 @@ def render_scene(
         actor.GetProperty().SetSpecular(0.08)
         ren.AddActor(actor)
 
-        # Feature Edges (omits internal triangle seams, renders geometry edges)
+        # Feature Edges
         edges = vtk.vtkFeatureEdges()
         edges.SetInputData(poly)
         edges.BoundaryEdgesOn()
@@ -233,22 +237,28 @@ def render_scene(
 
 def render_all_views(output_dir: Optional[str] = None) -> None:
     """
-    Renders four standard architectural views:
-      1. Perspective Isometric (Overall Stowed)
+    Renders standard architectural views:
+      1. Perspective Isometric (Overall Doors Closed)
       2. Front Orthographic Elevation
-      3. Right Orthographic Elevation
-      4. Perspective Isometric (Scanner Tray Extended & Open)
+      3. Right Orthographic Elevation (showing wall tether and exhaust duct)
+      4. Perspective Isometric (Doors Open, Tool Drawer Extended, Scanner Extended)
     """
     if output_dir is None:
         output_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "exports")
 
-    # 1. Stowed assembly
-    comp_stowed = get_cabinet_components(extension=0.0, scanner_lid_angle=0.0, include_mockups=True)
-    items_stowed = assign_component_colors(comp_stowed)
+    # 1. Closed assembly
+    comp_closed = get_cabinet_components(
+        scanner_extension=0.0,
+        drawer_extension=0.0,
+        scanner_lid_angle=0.0,
+        printer_door_angle=0.0,
+        include_mockups=True,
+    )
+    items_closed = assign_component_colors(comp_closed)
 
-    print("Rendering Isometric View...")
+    print("Rendering Isometric View (Closed)...")
     render_scene(
-        items_stowed,
+        items_closed,
         output_path=os.path.join(output_dir, "cabinet_isometric.png"),
         camera_pos=(2300.0, -2600.0, 2000.0),
         focal_point=(0.0, 0.0, 914.4),
@@ -257,7 +267,7 @@ def render_all_views(output_dir: Optional[str] = None) -> None:
 
     print("Rendering Front Elevation...")
     render_scene(
-        items_stowed,
+        items_closed,
         output_path=os.path.join(output_dir, "cabinet_front_elevation.png"),
         camera_pos=(0.0, -3200.0, 914.4),
         focal_point=(0.0, 0.0, 914.4),
@@ -266,9 +276,9 @@ def render_all_views(output_dir: Optional[str] = None) -> None:
         resolution=(1024, 1280),
     )
 
-    print("Rendering Right Elevation...")
+    print("Rendering Right Elevation (showing wall tether & exhaust duct)...")
     render_scene(
-        items_stowed,
+        items_closed,
         output_path=os.path.join(output_dir, "cabinet_right_elevation.png"),
         camera_pos=(3200.0, 0.0, 914.4),
         focal_point=(0.0, 0.0, 914.4),
@@ -277,13 +287,19 @@ def render_all_views(output_dir: Optional[str] = None) -> None:
         resolution=(1024, 1280),
     )
 
-    # 2. Scanner Extended & Lid Open View
-    comp_extended = get_cabinet_components(extension=420.0, scanner_lid_angle=75.0, include_mockups=True)
-    items_extended = assign_component_colors(comp_extended)
+    # 2. Operational / Open View: Scanner out, Tool Drawer out, Printer Door open
+    comp_open = get_cabinet_components(
+        scanner_extension=420.0,
+        drawer_extension=280.0,
+        scanner_lid_angle=75.0,
+        printer_door_angle=-70.0,
+        include_mockups=True,
+    )
+    items_open = assign_component_colors(comp_open)
 
-    print("Rendering Scanner Extended View...")
+    print("Rendering Operational Open View...")
     render_scene(
-        items_extended,
+        items_open,
         output_path=os.path.join(output_dir, "cabinet_scanner_extended.png"),
         camera_pos=(2300.0, -2600.0, 1600.0),
         focal_point=(0.0, -100.0, 800.0),

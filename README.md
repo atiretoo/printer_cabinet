@@ -7,16 +7,20 @@ Parametric workshop printer cabinet designed with CadQuery and built with 3/4" B
 This repository contains the CAD design for a dedicated, multi-tier workshop printer cabinet engineered to house both 3D printing and 2D printing/scanning workflows:
 
 - **Dimensions**: Approximately 6' high (72" / 1828.8 mm), 2' wide (24" / 609.6 mm), and 2' deep (24" / 609.6 mm).
-- **Primary Material**: 3/4" (19.05 mm) Baltic birch plywood for the carcass and structural shelves.
-- **Multi-Stage Vibration Isolation**:
-  - *Stage 1 (Primary Decoupling Base)*: A dense 18" x 18" concrete or granite inertia paver slab (~22 kg) rests on a 1/2" (12 mm) high-density closed-cell EVA / Sorbothane damping pad directly beneath the printer, halving motion amplitude and filtering out high-acceleration CoreXY motor jerk.
-  - *Stage 2 (Shelf Structural Rigidity)*: A double-laminated 1.5" (38.1 mm) Baltic birch printer shelf reinforced with a 1.5" front stiffening apron rib eliminates drum-head flexing and acoustic resonance.
-  - *Stage 3 (Low-CG Acoustic Ballast)*: The bottom paper storage compartment houses 30+ kg of paper reams, dramatically anchoring the cabinet's center of gravity and suppressing sway.
-  - *Stage 4 (Floor Decoupling)*: Heavy-duty elastomeric machine leveling feet isolate the cabinet plinth from the floor joists.
-- **Top Dry Chamber**: An upper storage compartment with a sealed door, desiccant trays, and dedicated pass-through openings with PTFE tubing to feed filament reels directly into the 3D printer enclosure below.
-- **Middle 3D Printer Chamber**: Solid, reinforced permanent shelf positioned at ergonomic working height to house a **Prusa Core One / Core One+**.
-- **Pull-Out Inkjet/Scanner Shelf**: Located directly below the 3D printer on heavy-duty full-extension slides, sized for an Epson all-in-one inkjet scanner so the flatbed lid can be fully opened when pulled forward.
-- **Lower Paper Storage**: Bottom compartment providing sturdy, flat storage for paper reams, spare parts, and workshop supplies.
+- **Primary Material**: 3/4" (19.05 mm) Baltic birch plywood for the carcass, structural shelves, and door frames; 1/2" (12.7 mm) Baltic birch for the inset shear back panel, tool drawer box, and tray lips.
+- **Multi-Stage Vibration Isolation & Ballast**:
+  - *Bottom Ballast Paver*: A dense 18" x 18" concrete/granite paver slab (~22 kg) housed inside the base plinth beneath the paper shelf, anchoring the center of mass right at floor level.
+  - *Printer Inertia Platform*: A second 18" x 18" concrete paver slab (~22 kg) resting on a 1/2" (12 mm) high-density closed-cell EVA / Sorbothane damping pad directly beneath the Prusa Core One+, cutting printhead jerk displacement in half.
+  - *Double-Laminated 1.5" Shelf*: Two face-glued 3/4" Baltic birch panels (38.1 mm total) with a 1.5" front stiffener apron rib to eliminate shelf deflection and acoustic drumming.
+  - *Acoustic Wall Tether*: A heavy-duty steel angle bracket with a neoprene rubber isolation grommet mounted at the upper rear to lock the 6' cabinet to a wall stud against sway while decoupling motor vibrations.
+  - *Base Decoupling Feet*: Four industrial rubber machine leveling feet isolating the plinth from floor joists.
+- **3D Printer Enclosure & Exhaust System**:
+  - Enclosed with a framed Baltic birch door and 1/8" clear acrylic viewing window.
+  - 120 mm enclosure exhaust fan and 4" (100 mm) round duct collar flange to vent fumes/VOCs directly out to a room window.
+- **Top Filament Dry Chamber**: Upper storage compartment with a sealed gasketed acrylic door, desiccant bead trays, dual-roller spool rack, and PTFE pass-through tubes to feed directly into the printer below.
+- **Shallow Tool Drawer**: Positioned directly under the 3D printer shelf on 22" full-extension slides; sized for modular Gridfinity bins, spare nozzles, scrapers, calipers, and maintenance tools.
+- **Pull-Out Inkjet/Scanner Shelf**: Located below the tool drawer on 22" heavy-duty slides; extends forward so the Epson flatbed scanner lid opens 100% unobstructed.
+- **Lower Paper Storage**: Compact bottom bay for up to 6 reams of paper (3,000 sheets) and 11x17 boxes.
 
 ## Development & AI Policy: The "Centaur" Approach
 

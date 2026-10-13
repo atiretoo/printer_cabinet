@@ -16,7 +16,7 @@
 # along with printer_cabinet.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Horizontal structural shelves, reinforced 3D printer shelf, and vibration
+Horizontal structural shelves, reinforced 3D printer shelf, and upper vibration
 decoupling platform (elastomer damping mat + concrete/granite inertia paver).
 """
 
@@ -32,6 +32,7 @@ from params import (
     PRINTER_SHELF_THICKNESS,
     Z_BOTTOM_PANEL_BOTTOM,
     Z_LOWER_DIVIDER_BOTTOM,
+    Z_TOOL_DIVIDER_BOTTOM,
     Z_PRINTER_SHELF_BOTTOM,
     Z_DRY_SHELF_BOTTOM,
     Z_TOP_PANEL_BOTTOM,
@@ -62,7 +63,7 @@ def make_standard_shelf(z_bottom: float, thickness: float = PLY_THICKNESS) -> cq
 
 
 def make_bottom_panel() -> cq.Workplane:
-    """Creates the structural bottom panel above the plinth."""
+    """Creates the structural bottom panel above the plinth / ballast compartment."""
     return make_standard_shelf(Z_BOTTOM_PANEL_BOTTOM)
 
 
@@ -71,13 +72,17 @@ def make_lower_divider() -> cq.Workplane:
     return make_standard_shelf(Z_LOWER_DIVIDER_BOTTOM)
 
 
+def make_tool_divider() -> cq.Workplane:
+    """Creates the divider shelf between the pull-out scanner bay and the shallow tool drawer."""
+    return make_standard_shelf(Z_TOOL_DIVIDER_BOTTOM)
+
+
 def make_printer_shelf() -> cq.Workplane:
     """
     Creates the reinforced permanent shelf for the 3D printer.
 
     Constructed from double-laminated 1.5" (38.1 mm) Baltic birch plywood,
-    augmented by a front stiffening apron rib. This mass and section modulus
-    drastically reduces deflection and drum-skin resonance under the moving printer.
+    augmented by a front stiffening apron rib.
     """
     base_shelf = make_standard_shelf(Z_PRINTER_SHELF_BOTTOM, thickness=PRINTER_SHELF_THICKNESS)
 
@@ -99,7 +104,7 @@ def make_printer_shelf() -> cq.Workplane:
 def make_isolation_pad() -> cq.Workplane:
     """
     Creates the high-density closed-cell EVA foam / Sorbothane decoupling mat
-    resting directly on top of the printer shelf.
+    resting on top of the printer shelf.
     """
     pad_z = Z_PAD_BOTTOM + ISOLATION_PAD_THICKNESS / 2.0
     pad = (
@@ -112,8 +117,8 @@ def make_isolation_pad() -> cq.Workplane:
 
 def make_paver_slab() -> cq.Workplane:
     """
-    Creates the dense concrete or granite inertia ballast paver (~22 kg).
-    Sits on top of the isolation mat and acts as the immediate platform for the printer.
+    Creates the dense concrete or granite inertia ballast paver (~22 kg)
+    under the 3D printer chassis.
     """
     paver_z = Z_PAVER_BOTTOM + PAVER_THICKNESS / 2.0
     paver = (
@@ -127,7 +132,7 @@ def make_paver_slab() -> cq.Workplane:
 
 def make_dry_shelf() -> cq.Workplane:
     """
-    Creates the permanent shelf separating the 3D printer bay from the dry chamber.
+    Creates the permanent shelf separating the 3D printer chamber from the dry chamber.
     Includes pass-through holes for PTFE bulkhead fittings.
     """
     shelf = make_standard_shelf(Z_DRY_SHELF_BOTTOM)

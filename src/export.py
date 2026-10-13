@@ -20,7 +20,7 @@ CAD Export utility for the printer cabinet project.
 
 Exports:
   - STEP files for woodworking CAD modeling and full assembly verification.
-  - STL files for 3D printable accessories (desiccant trays, roller brackets).
+  - STL files for 3D printable accessories (desiccant trays, exhaust duct adapter).
 """
 
 import os
@@ -31,6 +31,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 from assembly import build_full_compound, get_cabinet_components
 from drybox import make_desiccant_trays, make_spool_rack
+from printer_bay import make_exhaust_fan_assembly
 
 
 def export_cad_files(output_dir: str = None) -> None:
@@ -42,23 +43,41 @@ def export_cad_files(output_dir: str = None) -> None:
     os.makedirs(output_dir, exist_ok=True)
 
     print("Exporting Full Cabinet Assembly STEP file...")
-    assy_compound = build_full_compound(extension=0.0, scanner_lid_angle=0.0, include_mockups=False)
+    assy_compound = build_full_compound(
+        scanner_extension=0.0,
+        drawer_extension=0.0,
+        scanner_lid_angle=0.0,
+        printer_door_angle=0.0,
+        include_mockups=False,
+    )
     step_path = os.path.join(output_dir, "printer_cabinet_carcass.step")
     cq.exporters.export(assy_compound, step_path)
     print(f"Exported: {step_path}")
 
     print("Exporting Full Assembly with Mockups STEP file...")
     full_step_path = os.path.join(output_dir, "printer_cabinet_full_assembly.step")
-    full_compound = build_full_compound(extension=350.0, scanner_lid_angle=70.0, include_mockups=True)
+    full_compound = build_full_compound(
+        scanner_extension=350.0,
+        drawer_extension=250.0,
+        scanner_lid_angle=70.0,
+        printer_door_angle=-60.0,
+        include_mockups=True,
+    )
     cq.exporters.export(full_compound, full_step_path)
     print(f"Exported: {full_step_path}")
 
-    # 3D Printable accessories: Desiccant trays
+    # 3D Printable accessories
     print("Exporting Desiccant Tray STL...")
     tray = make_desiccant_trays()
     tray_stl_path = os.path.join(output_dir, "desiccant_tray.stl")
     cq.exporters.export(tray, tray_stl_path)
     print(f"Exported: {tray_stl_path}")
+
+    print("Exporting Exhaust Duct Adapter STL...")
+    duct = make_exhaust_fan_assembly()
+    duct_stl_path = os.path.join(output_dir, "exhaust_duct_adapter.stl")
+    cq.exporters.export(duct, duct_stl_path)
+    print(f"Exported: {duct_stl_path}")
 
 
 if __name__ == "__main__":

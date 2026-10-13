@@ -16,10 +16,7 @@
 # along with printer_cabinet.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Carcass panel geometry and vibration isolation feet for the printer cabinet.
-
-Generates the structural vertical side panels, base plinth / toe-kick,
-inset back panel, and elastomeric machine leveling feet.
+Carcass panel geometry, bottom ballast compartment, machine feet, and wall tether.
 """
 
 from typing import Dict, Tuple, List
@@ -40,16 +37,23 @@ from params import (
     VIBRATION_FEET_HEIGHT,
     VIBRATION_FEET_DIAMETER,
     Z_PLINTH_BOTTOM,
-    Z_PLINTH_TOP,
+    Z_BOTTOM_PAVER_BOTTOM,
+    PAVER_WIDTH,
+    PAVER_DEPTH,
+    PAVER_THICKNESS,
+    EXHAUST_DUCT_DIA,
+    EXHAUST_PORT_POS_X,
+    EXHAUST_PORT_POS_Z,
+    WALL_TETHER_WIDTH,
+    WALL_TETHER_HEIGHT,
+    WALL_TETHER_DEPTH,
+    WALL_TETHER_GROMMET_DIA,
 )
 
 
 def make_side_panel(side: str = "left") -> cq.Workplane:
     """
     Creates a single vertical side panel (3/4" Baltic birch).
-
-    The panel spans the full cabinet depth and height, featuring a front
-    toe-kick cutout at the bottom.
     """
     panel = cq.Workplane("XY").box(PLY_THICKNESS, CABINET_DEPTH, CABINET_HEIGHT)
 
@@ -76,12 +80,13 @@ def make_side_panel(side: str = "left") -> cq.Workplane:
 
 def make_plinth_assembly() -> cq.Workplane:
     """
-    Creates the recessed toe-kick plinth frame at the base of the cabinet.
+    Creates the recessed toe-kick plinth frame at the base of the cabinet,
+    housing the bottom inertia ballast paver.
     """
     plinth_parts = []
     plinth_mid_z = Z_PLINTH_BOTTOM + PLINTH_WOOD_HEIGHT / 2.0
 
-    # Front toe-kick face board (recessed by PLINTH_SETBACK_FRONT)
+    # Front toe-kick face board
     front_rail_y = FRONT_FACE_Y + PLINTH_SETBACK_FRONT + PLY_THICKNESS / 2.0
     front_rail = (
         cq.Workplane("XY")
@@ -113,6 +118,22 @@ def make_plinth_assembly() -> cq.Workplane:
     return cq.Workplane(cq.Compound.makeCompound(plinth_parts))
 
 
+def make_bottom_ballast_paver() -> cq.Workplane:
+    """
+    Creates the secondary concrete or granite inertia ballast paver (~22 kg)
+    seated directly in the base plinth beneath the paper storage bay.
+    Permanently anchors the base of the cabinet directly at floor level.
+    """
+    paver_mid_z = Z_BOTTOM_PAVER_BOTTOM + PAVER_THICKNESS / 2.0
+    paver = (
+        cq.Workplane("XY")
+        .box(PAVER_WIDTH, PAVER_DEPTH, PAVER_THICKNESS)
+        .translate((0, 0, paver_mid_z))
+    )
+    paver = paver.edges().chamfer(3.0)
+    return paver
+
+
 def make_isolation_feet() -> cq.Workplane:
     """
     Creates 4 heavy-duty industrial elastomer vibration-damping machine feet
@@ -127,7 +148,6 @@ def make_isolation_feet() -> cq.Workplane:
 
     for x_pos in [-x_offset, x_offset]:
         for y_pos in [front_y, rear_y]:
-            # Rubber foot base
             foot = (
                 cq.Workplane("XY")
                 .cylinder(VIBRATION_FEET_HEIGHT, VIBRATION_FEET_DIAMETER / 2.0)
@@ -138,10 +158,46 @@ def make_isolation_feet() -> cq.Workplane:
     return cq.Workplane(cq.Compound.makeCompound(feet_parts))
 
 
+def make_wall_tether() -> cq.Workplane:
+    """
+    Creates an acoustic-decoupling wall tether bracket mounted at the upper rear.
+    Consists of a heavy steel angle with a central vibration-damping neoprene grommet
+    to secure against tall-cabinet sway without transmitting motor sound to the studs.
+    """
+    parts = []
+    tether_z = CABINET_HEIGHT - WALL_TETHER_HEIGHT / 2.0
+    tether_y = REAR_FACE_Y + WALL_TETHER_DEPTH / 2.0 - 3.0  # abuts wall
+
+    # Steel angle bracket (3mm thick)
+    bracket = (
+        cq.Workplane("XY")
+        .box(WALL_TETHER_WIDTH, WALL_TETHER_DEPTH, WALL_TETHER_HEIGHT)
+        .translate((0, tether_y, tether_z))
+    )
+    # Inner cutout to form L-shape
+    bracket_cut = (
+        cq.Workplane("XY")
+        .box(WALL_TETHER_WIDTH + 10.0, WALL_TETHER_DEPTH - 4.0, WALL_TETHER_HEIGHT - 4.0)
+        .translate((0, tether_y - 2.0, tether_z + 2.0))
+    )
+    bracket = bracket.cut(bracket_cut)
+    parts.append(bracket.val())
+
+    # Neoprene rubber isolation bushing / grommet in wall-flange
+    grommet = (
+        cq.Workplane("YZ")
+        .cylinder(12.0, WALL_TETHER_GROMMET_DIA / 2.0)
+        .translate((0, REAR_FACE_Y + WALL_TETHER_DEPTH - 6.0, tether_z))
+    )
+    parts.append(grommet.val())
+
+    return cq.Workplane(cq.Compound.makeCompound(parts))
+
+
 def make_back_panel() -> cq.Workplane:
     """
     Creates the structural 1/2" Baltic birch inset back panel.
-    Spans from the top of the plinth to the top of the cabinet.
+    Features a 4" (100 mm) round cutout for the 3D printer chamber exhaust duct.
     """
     back_h = CABINET_HEIGHT - PLINTH_TOTAL_HEIGHT
     back_z = PLINTH_TOTAL_HEIGHT + back_h / 2.0
@@ -152,4 +208,15 @@ def make_back_panel() -> cq.Workplane:
         .box(INSIDE_WIDTH, BACK_THICKNESS, back_h)
         .translate((0, back_y, back_z))
     )
+
+    # Exhaust duct cutout: use cyclic ZX plane (# local (z, x), normal is +Y)
+    duct_cutter = (
+        cq.Workplane("ZX")
+        .workplane(offset=back_y - BACK_THICKNESS)
+        .center(EXHAUST_PORT_POS_Z, EXHAUST_PORT_POS_X)  # local (z, x)
+        .circle(EXHAUST_DUCT_DIA / 2.0)
+        .extrude(BACK_THICKNESS * 2)
+    )
+    panel = panel.cut(duct_cutter)
+
     return panel

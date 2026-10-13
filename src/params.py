@@ -35,9 +35,10 @@ CABINET_HEIGHT = 72.0 * INCH_TO_MM    # 1828.8 mm (~6 ft)
 
 # Sheet Goods Thicknesses
 PLY_THICKNESS = 0.75 * INCH_TO_MM     # 19.05 mm (3/4" Baltic Birch plywood)
+DRAWER_PLY_THICKNESS = 0.50 * INCH_TO_MM # 12.70 mm (1/2" Baltic Birch for drawer box)
 BACK_THICKNESS = 0.50 * INCH_TO_MM    # 12.70 mm (1/2" Baltic Birch back panel)
 TRAY_LIP_THICKNESS = 0.50 * INCH_TO_MM# 12.70 mm (1/2" plywood for pull-out tray lips)
-ACRYLIC_THICKNESS = 3.0               # 3.00 mm (1/8" clear acrylic door pane)
+ACRYLIC_THICKNESS = 3.0               # 3.00 mm (1/8" clear acrylic door panes)
 
 # Inside Usable Dimensions
 INSIDE_WIDTH = CABINET_WIDTH - 2 * PLY_THICKNESS   # 571.50 mm (22.5")
@@ -47,13 +48,19 @@ REAR_FACE_Y = CABINET_DEPTH / 2.0                  # +304.80 mm
 INSIDE_FRONT_Y = FRONT_FACE_Y                      # -304.80 mm
 INSIDE_REAR_Y = REAR_FACE_Y - BACK_THICKNESS       # +292.10 mm
 
-# Base / Plinth (Toe-kick) and Vibration Isolation Feet
+# Base / Plinth & Leveling Feet
 VIBRATION_FEET_HEIGHT = 20.0                       # 20.00 mm heavy-duty rubber leveling feet
 VIBRATION_FEET_DIAMETER = 60.0                     # 60.00 mm diameter elastomer base
-PLINTH_WOOD_HEIGHT = 50.0                          # 50.00 mm wood plinth frame
-PLINTH_TOTAL_HEIGHT = VIBRATION_FEET_HEIGHT + PLINTH_WOOD_HEIGHT # 70.00 mm total base height
+PLINTH_WOOD_HEIGHT = 55.0                          # 55.00 mm wood plinth frame (houses bottom paver)
+PLINTH_TOTAL_HEIGHT = VIBRATION_FEET_HEIGHT + PLINTH_WOOD_HEIGHT # 75.00 mm total base height
 PLINTH_SETBACK_FRONT = 1.5 * INCH_TO_MM            # 38.10 mm
 PLINTH_SETBACK_SIDES = 0.75 * INCH_TO_MM           # 19.05 mm
+
+# Concrete / Granite Inertia Pavers (Dual Ballast: Bottom Base + Printer Platform)
+PAVER_WIDTH = 450.0                                # 450.00 mm (~17.7" square paver)
+PAVER_DEPTH = 450.0                                # 450.00 mm
+PAVER_THICKNESS = 45.0                             # 45.00 mm (~1.77" thickness, ~22 kg each)
+ISOLATION_PAD_THICKNESS = 12.0                     # 12.00 mm high-density closed-cell damping pad
 
 # ==============================================================================
 # 2. VERTICAL ELEVATIONS AND COMPARTMENT HEIGHTS (BOTTOM UP)
@@ -61,73 +68,103 @@ PLINTH_SETBACK_SIDES = 0.75 * INCH_TO_MM           # 19.05 mm
 # Floor: Z = 0
 Z_FEET_BOTTOM = 0.0
 Z_PLINTH_BOTTOM = VIBRATION_FEET_HEIGHT            # 20.00 mm
-Z_PLINTH_TOP = PLINTH_TOTAL_HEIGHT                 # 70.00 mm
+Z_PLINTH_TOP = PLINTH_TOTAL_HEIGHT                 # 75.00 mm
 
-# Bottom Panel
-Z_BOTTOM_PANEL_BOTTOM = Z_PLINTH_TOP               # 70.00 mm
-Z_BOTTOM_PANEL_TOP = Z_BOTTOM_PANEL_BOTTOM + PLY_THICKNESS  # 89.05 mm
+# Bottom Ballast Paver (Under bottom shelf, inside plinth)
+Z_BOTTOM_PAVER_BOTTOM = Z_PLINTH_BOTTOM + 5.0      # 25.00 mm
+Z_BOTTOM_PAVER_TOP = Z_BOTTOM_PAVER_BOTTOM + PAVER_THICKNESS # 70.00 mm
 
-# Zone 4: Paper Storage Bay (Lowest - serves as 30+ kg low-CG acoustic ballast)
-PAPER_BAY_HEIGHT = 330.0                           # 330.00 mm (~13.00")
+# Bottom Panel (above plinth / ballast compartment)
+Z_BOTTOM_PANEL_BOTTOM = Z_PLINTH_TOP               # 75.00 mm
+Z_BOTTOM_PANEL_TOP = Z_BOTTOM_PANEL_BOTTOM + PLY_THICKNESS  # 94.05 mm
 
-# Divider Shelf (above paper storage / below scanner)
-Z_LOWER_DIVIDER_BOTTOM = Z_BOTTOM_PANEL_TOP + PAPER_BAY_HEIGHT  # 419.05 mm
-Z_LOWER_DIVIDER_TOP = Z_LOWER_DIVIDER_BOTTOM + PLY_THICKNESS    # 438.10 mm
+# Zone 5: Paper Storage Bay (Reduced height)
+PAPER_BAY_HEIGHT = 180.0                           # 180.00 mm (~7.09", holds 6 reams letter paper)
 
-# Zone 3: Inkjet / Scanner Pull-Out Bay
-SCANNER_BAY_HEIGHT = 270.0                         # 270.00 mm (~10.63")
+# Divider Shelf 1 (above paper storage / below scanner bay)
+Z_LOWER_DIVIDER_BOTTOM = Z_BOTTOM_PANEL_TOP + PAPER_BAY_HEIGHT  # 274.05 mm
+Z_LOWER_DIVIDER_TOP = Z_LOWER_DIVIDER_BOTTOM + PLY_THICKNESS    # 293.10 mm
 
-# 3D Printer Solid Shelf (Double-Laminated 1.5" Baltic Birch for mass & stiffness)
+# Zone 4: Inkjet / Scanner Pull-Out Bay
+SCANNER_BAY_HEIGHT = 230.0                         # 230.00 mm (~9.06")
+
+# Divider Shelf 2 (above scanner bay / below tool drawer)
+Z_TOOL_DIVIDER_BOTTOM = Z_LOWER_DIVIDER_TOP + SCANNER_BAY_HEIGHT # 523.10 mm
+Z_TOOL_DIVIDER_TOP = Z_TOOL_DIVIDER_BOTTOM + PLY_THICKNESS       # 542.15 mm
+
+# Zone 3: Shallow Tool Drawer Bay
+TOOL_DRAWER_BAY_HEIGHT = 90.0                      # 90.00 mm (~3.54")
+
+# 3D Printer Solid Shelf (Double-Laminated 1.5" Baltic Birch for maximum mass/stiffness)
 PRINTER_SHELF_THICKNESS = 2 * PLY_THICKNESS        # 38.10 mm (1.5" laminated shelf)
-Z_PRINTER_SHELF_BOTTOM = Z_LOWER_DIVIDER_TOP + SCANNER_BAY_HEIGHT # 708.10 mm
-Z_PRINTER_SHELF_TOP = Z_PRINTER_SHELF_BOTTOM + PRINTER_SHELF_THICKNESS # 746.20 mm
+Z_PRINTER_SHELF_BOTTOM = Z_TOOL_DIVIDER_TOP + TOOL_DRAWER_BAY_HEIGHT # 632.15 mm
+Z_PRINTER_SHELF_TOP = Z_PRINTER_SHELF_BOTTOM + PRINTER_SHELF_THICKNESS # 670.25 mm
 
-# Vibration Decoupling Platform (Under 3D Printer)
-ISOLATION_PAD_THICKNESS = 12.0                     # 12.00 mm high-density closed-cell EVA / Sorbothane
-PAVER_WIDTH = 450.0                                # 450.00 mm (~17.7" concrete / granite paver)
-PAVER_DEPTH = 450.0                                # 450.00 mm
-PAVER_THICKNESS = 45.0                             # 45.00 mm (~1.77" thickness, ~22 kg inertia ballast)
+# Upper Vibration Decoupling Platform (Under 3D Printer)
+Z_PAD_BOTTOM = Z_PRINTER_SHELF_TOP                 # 670.25 mm
+Z_PAD_TOP = Z_PAD_BOTTOM + ISOLATION_PAD_THICKNESS # 682.25 mm
+Z_PAVER_BOTTOM = Z_PAD_TOP                         # 682.25 mm
+Z_PAVER_TOP = Z_PAVER_BOTTOM + PAVER_THICKNESS     # 727.25 mm
 
-Z_PAD_BOTTOM = Z_PRINTER_SHELF_TOP                 # 746.20 mm
-Z_PAD_TOP = Z_PAD_BOTTOM + ISOLATION_PAD_THICKNESS # 758.20 mm
-Z_PAVER_BOTTOM = Z_PAD_TOP                         # 758.20 mm
-Z_PAVER_TOP = Z_PAVER_BOTTOM + PAVER_THICKNESS     # 803.20 mm
-
-# Zone 2: 3D Printer Chamber (Prusa Core One+)
-# Clearance above printer shelf to underside of dry shelf
-PRINTER_BAY_HEIGHT = 693.80                        # 693.80 mm (~27.31")
-# Clearance above printer top (Z_PAVER_TOP + 555mm = 1358.2mm) to dry shelf (1440mm) = ~82mm
+# Zone 2: 3D Printer Chamber (Prusa Core One+ with Door & Exhaust Fan)
+PRINTER_BAY_HEIGHT = 730.0                         # 730.00 mm (~28.74")
+# Top of printer is Z_PAVER_TOP + 555mm = 1282.25mm.
+# Underside of dry shelf is 670.25 + 730 = 1400.25mm.
+# Vertical clearance above printer = 1400.25 - 1282.25 = 118.0 mm (~4.65") for reverse Bowden tube.
 
 # Zone 1 Floor: Filament Dry Chamber Shelf (with PTFE pass-through)
-Z_DRY_SHELF_BOTTOM = Z_PRINTER_SHELF_TOP + PRINTER_BAY_HEIGHT     # 1440.00 mm
-Z_DRY_SHELF_TOP = Z_DRY_SHELF_BOTTOM + PLY_THICKNESS             # 1459.05 mm
+Z_DRY_SHELF_BOTTOM = Z_PRINTER_SHELF_TOP + PRINTER_BAY_HEIGHT     # 1400.25 mm
+Z_DRY_SHELF_TOP = Z_DRY_SHELF_BOTTOM + PLY_THICKNESS             # 1419.30 mm
 
 # Top Panel
 Z_TOP_PANEL_TOP = CABINET_HEIGHT                   # 1828.80 mm (72.0")
 Z_TOP_PANEL_BOTTOM = Z_TOP_PANEL_TOP - PLY_THICKNESS # 1809.75 mm
 
 # Zone 1: Filament Dry Chamber Clear Height
-DRY_BAY_HEIGHT = Z_TOP_PANEL_BOTTOM - Z_DRY_SHELF_TOP # 350.70 mm (~13.81")
+DRY_BAY_HEIGHT = Z_TOP_PANEL_BOTTOM - Z_DRY_SHELF_TOP # 390.45 mm (~15.37")
 
 # ==============================================================================
-# 3. PULL-OUT SCANNER TRAY & HARDWARE
+# 3. SHALLOW TOOL DRAWER & SCANNER PULL-OUT HARDWARE
 # ==============================================================================
 SLIDE_THICKNESS = 0.50 * INCH_TO_MM                # 12.70 mm (standard slide clearance)
 SLIDE_LENGTH = 22.0 * INCH_TO_MM                   # 558.80 mm
 SLIDE_HEIGHT = 45.0                                # 45.00 mm
 
+# Shallow Tool Drawer
+TOOL_DRAWER_WIDTH = INSIDE_WIDTH - 2 * SLIDE_THICKNESS  # 546.10 mm (21.5")
+TOOL_DRAWER_DEPTH = 550.0                          # 550.00 mm
+TOOL_DRAWER_BOX_HEIGHT = 65.0                      # 65.00 mm (fits 8U Gridfinity)
+TOOL_DRAWER_FRONT_HEIGHT = 84.0                    # 84.00 mm false front
+TOOL_DRAWER_WALL_THICKNESS = DRAWER_PLY_THICKNESS  # 12.70 mm
+TOOL_DRAWER_BOTTOM_THICKNESS = DRAWER_PLY_THICKNESS# 12.70 mm
+
+# Scanner Pull-Out Tray
 TRAY_WIDTH = INSIDE_WIDTH - 2 * SLIDE_THICKNESS    # 546.10 mm (21.5")
 TRAY_DEPTH = 550.0                                 # 550.00 mm
 TRAY_THICKNESS = PLY_THICKNESS                     # 19.05 mm
 TRAY_LIP_HEIGHT = 32.0                             # 32.00 mm
-TRAY_ELEVATION_ABOVE_DIVIDER = 15.0                # 15.00 mm clearance off divider shelf
+TRAY_ELEVATION_ABOVE_DIVIDER = 12.0                # 12.00 mm clearance off divider shelf
 
 # ==============================================================================
-# 4. FILAMENT DRY CHAMBER & SEALED DOOR
+# 4. ENCLOSURE DOORS & EXHAUST SYSTEM
 # ==============================================================================
 DOOR_FRAME_WIDTH = 50.0                            # 50.00 mm border
-DOOR_GASKET_THICKNESS = 3.0                        # 3.00 mm compressed silicone bulb seal
+DOOR_GASKET_THICKNESS = 3.0                        # 3.00 mm compressed silicone seal
 DOOR_CLEARANCE = 2.0                               # 2.00 mm perimeter reveal
+
+# Exhaust Fan & Duct Flange (Venting out upper rear of printer bay to external window)
+EXHAUST_FAN_SIZE = 120.0                           # 120.00 mm standard enclosure fan
+EXHAUST_FAN_DEPTH = 25.0                           # 25.00 mm
+EXHAUST_DUCT_DIA = 100.0                           # 100.00 mm (4" standard duct collar)
+EXHAUST_DUCT_LENGTH = 40.0                         # 40.00 mm
+EXHAUST_PORT_POS_X = 140.0                         # Offset to right of rear panel
+EXHAUST_PORT_POS_Z = Z_DRY_SHELF_BOTTOM - 100.0    # Near top of printer chamber
+
+# Acoustic Wall Tether Bracket (Upper rear)
+WALL_TETHER_WIDTH = 75.0                           # 75.00 mm heavy-duty steel angle
+WALL_TETHER_HEIGHT = 60.0                          # 60.00 mm
+WALL_TETHER_DEPTH = 50.0                           # 50.00 mm
+WALL_TETHER_GROMMET_DIA = 25.0                     # 25.00 mm neoprene isolation grommet
 
 # Spool Rack & Desiccant Trays
 SPOOL_DIAMETER = 200.0                             # Standard 1kg reel diameter
@@ -141,7 +178,7 @@ DESICCANT_TRAY_DEPTH = 160.0                       # 160.00 mm
 DESICCANT_TRAY_HEIGHT = 28.0                       # 28.00 mm
 
 PTFE_TUBE_OD = 4.0                                 # 4.00 mm
-PTFE_FITTING_HOLE_DIA = 10.0                       # 10.00 mm (M10 / PC4-M10 pass-through thread)
+PTFE_FITTING_HOLE_DIA = 10.0                       # 10.00 mm (M10 / PC4-M10 pass-through)
 PTFE_PORT_OFFSETS_X = [-60.0, 60.0]                # Dual feed ports
 PTFE_PORT_OFFSET_Y = 0.0                           # Centered over printer top inlet
 
